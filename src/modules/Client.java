@@ -11,7 +11,7 @@ public class Client extends User {
     public Client(UUID id, String firstName, String lastName, String telephone, String CIN, BigDecimal salaire, String email,  String password) {
         super(id, firstName,lastName,telephone,CIN, email,  password);
         this.salaire = salaire;
-        this.role = "CLIENT";
+        this.role = Roles.CLIENT;
     }
 
     public BigDecimal getSalaire() {

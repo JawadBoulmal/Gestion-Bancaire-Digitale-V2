@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="jbcrypt-0.4-javadoc">
+    <CLASSES />
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/Downloads/jbcrypt-0.4-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES />
+    <excluded>
+      <root url="jar://$USER_HOME$/Downloads/jbcrypt-0.4-javadoc.jar!/" />
+    </excluded>
+  </library>
+</component>

@@ -12,7 +12,7 @@ public abstract class User {
     protected String CIN;
     protected String email;
     protected String password;
-    protected String role;
+    protected Roles role;
 
 
 
@@ -26,11 +26,11 @@ public abstract class User {
         this.password = password;
     }
 
-    public String getRole() {
+    public Roles getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Roles role) {
         this.role = role;
     }
 

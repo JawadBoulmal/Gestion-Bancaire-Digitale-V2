@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 
 public class AuthView {
     private Scanner scanner = new Scanner(System.in);
-    private Scanner scanner2 = new Scanner(System.in);
     Connection conn ;
     UserRepository UserRepository ;
     AuthService AuthService ;
@@ -46,60 +45,6 @@ public class AuthView {
         this.AuthService.Login(email,password);
         AcceuilView = new Acceuil();
     }
-    public void showRegisterMenu() throws SQLException {
-        System.out.println("===================================");
-        System.out.println("         🔐 Add User Menu              ");
-        System.out.println("===================================");
 
-        System.out.print("📧 First Name    : ");
-        String firstName = scanner.nextLine();
-
-        System.out.print("📧 Last Name    : ");
-        String lasttName = scanner.nextLine();
-
-        System.out.print("📧 Telephone    : ");
-        String telephone = scanner.nextLine();
-
-        System.out.print("📧 CIN    : ");
-        String CIN = scanner.nextLine();
-
-        System.out.print("📧 Salaire    : ");
-        BigDecimal Salaire = scanner2.nextBigDecimal();
-
-        System.out.print("🔑 Address : ");
-        String address = scanner.nextLine();
-
-        System.out.print("📧 Email    : ");
-        String email = scanner.nextLine();
-
-        while(!AuthService.validationEmail(email)){
-            System.out.println("Email Not Valid Try Again !");
-            System.out.print("📧 Email    : ");
-            email = scanner.nextLine();
-        }
-
-        System.out.print("🔑 Password : ");
-        String password = scanner.nextLine();
-
-        while(!AuthService.validationPassword(password)){
-            System.out.println("Password Must Be More Than 6 Characters !");
-            System.out.print("🔑 Password : ");
-            password = scanner.nextLine();
-        }
-
-        boolean result = AuthService.Register(firstName,lasttName,telephone,CIN,Salaire,email,password, Roles.CLIENT);
-        if(result){
-            System.out.println("╔═══════════════════════════════════════════════════════╗");
-            System.out.println("   User "+firstName+" Has been added successfully");
-            System.out.println("╚═══════════════════════════════════════════════════════╝");
-            showLoginMenu();
-        }else{
-            System.out.println("╔═══════════════════════════════════════════════════════╗");
-            System.out.println("   ✘ Login creation failed!           ");
-            System.out.println("   🔄 No account associated with this informations.           ");
-            System.out.println("╚═══════════════════════════════════════════════════════╝");
-            showRegisterMenu();
-        }
-    }
 
 }

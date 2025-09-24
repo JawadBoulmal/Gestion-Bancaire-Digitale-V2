@@ -3,6 +3,7 @@ package repositories;
 import enums.Roles;
 import interfaces.UserRepository;
 import modules.*;
+import org.postgresql.util.PSQLException;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -20,65 +21,57 @@ public class UserRepositoryImp implements UserRepository {
     }
 
     public UUID save(User user, String role) throws SQLException {
-        String insertUser;
-
-        if(user instanceof Client User){
-            insertUser = "INSERT INTO client (id, firstName, lastName, telephone, cin , role, salaire,  email, password) VALUES (?, ?, ?, ?, ?,  ?::roles, ?, ?, ?)";
-            try (PreparedStatement stmt = connection.prepareStatement(insertUser)) {
-                stmt.setObject(1, User.getId());
-                stmt.setString(2, User.getFirstName());
-                stmt.setString(3, User.getLastName());
-                stmt.setString(4, User.getTelephone());
-                stmt.setString(5, User.getCIN());
-                stmt.setString(6, User.getRole());
-                stmt.setObject(7, User.getSalaire());
-                stmt.setString(8, User.getEmail());
-                stmt.setString(9, User.getPassword());
-                stmt.executeUpdate();
+        try{
+            String insertUser;
+            if(user instanceof Client User){
+                insertUser = "INSERT INTO client (id, firstName, lastName, telephone, cin , role, salaire,  email, password) VALUES (?, ?, ?, ?, ?,  ?::roles, ?, ?, ?)";
+                try (PreparedStatement stmt = connection.prepareStatement(insertUser)) {
+                    stmt.setObject(1, User.getId());
+                    stmt.setString(2, User.getFirstName());
+                    stmt.setString(3, User.getLastName());
+                    stmt.setString(4, User.getTelephone());
+                    stmt.setString(5, User.getCIN());
+                    stmt.setString(6, User.getRole().name());
+                    stmt.setObject(7, User.getSalaire());
+                    stmt.setString(8, User.getEmail());
+                    stmt.setString(9, User.getPassword());
+                    stmt.executeUpdate();
+                }
+            }else{
+                insertUser = "INSERT INTO users (id, firstName, lastName, telephone, role,  email, password) VALUES (?, ?, ?, ?, ?::roles, ?, ?)";
+                try (PreparedStatement stmt = connection.prepareStatement(insertUser)) {
+                    stmt.setObject(1, user.getId());
+                    stmt.setString(2, user.getFirstName());
+                    stmt.setString(3, user.getLastName());
+                    stmt.setString(4, user.getTelephone());
+                    stmt.setString(5, user.getRole().name());
+                    stmt.setString(6, user.getEmail());
+                    stmt.setString(7, user.getPassword());
+                    stmt.executeUpdate();
+                }
             }
-        }else{
-            insertUser = "INSERT INTO user (id, firstName, lastName, telephone, role,  email, password) VALUES (?, ?, ?, ?, ?::roles, ?, ?)";
-            try (PreparedStatement stmt = connection.prepareStatement(insertUser)) {
-                stmt.setObject(1, user.getId());
-                stmt.setString(2, user.getFirstName());
-                stmt.setString(3, user.getLastName());
-                stmt.setString(4, user.getTelephone());
-                stmt.setString(5, user.getRole());
-                stmt.setString(6, user.getEmail());
-                stmt.setString(7, user.getPassword());
-                stmt.executeUpdate();
-            }
+            return user.getId();
+        } catch (Exception e) {
+            System.out.println("ERROR"+e.getMessage());
         }
-        return user.getId();
+        return null;
     }
+
+
     @Override
     public User login(String email, String password) throws SQLException {
         String sql = """
-                        SELECT u.id, u.firstName, u.lastName, u.telephone, u.role, u.email, 
-                               u.password, c.salaire, c.CIN
+                        SELECT u.id, u.firstName, u.lastName, u.telephone, u.role, u.email, u.password, c.salaire, c.CIN
                         FROM users u
                         LEFT JOIN client c ON u.id = c.id
-                        WHERE u.email = ? AND u.password = ?
+                        WHERE u.email = ? AND u.password = ?  ;
                     """;
         PreparedStatement stmt = connection.prepareStatement(sql);
         stmt.setString(1, email);
-        stmt.setString(2, password); // In real apps, use hashed passwords!
+        stmt.setString(2, password);
         ResultSet rs = stmt.executeQuery();
         if(rs.next()) {
-            if (Objects.equals(rs.getString("role"), "CLIENT")){
-                Client client = new Client(
-                        (UUID) rs.getObject("id"),
-                        rs.getString("firstname"),
-                        rs.getString("lastname"),
-                        rs.getString("telephone"),
-                        rs.getString("cin"),
-                        rs.getBigDecimal("salaire"),
-                        rs.getString("email"),
-                        rs.getString("password")
-                );
-                this.userInfo = client;
-                return this.userInfo;
-            }else if (Objects.equals(rs.getString("role"), "ADMIN")){
+            if (Objects.equals(rs.getString("role"), "ADMIN")){
                 Admin admin = new Admin(
                         (UUID) rs.getObject("id"),
                         rs.getString("firstname"),
@@ -114,7 +107,7 @@ public class UserRepositoryImp implements UserRepository {
                 );
                 this.userInfo = manager;
                 return this.userInfo;
-            }else if (Objects.equals(rs.getString("role"), "AUDITOR")){
+            }else if (Objects.equals(rs.getString("role"), "CLIENT")){
                 Auditor auditor = new Auditor(
                         (UUID) rs.getObject("id"),
                         rs.getString("firstname"),
@@ -142,6 +135,21 @@ public class UserRepositoryImp implements UserRepository {
         if(rs.next()){
             boolean exist = rs.getBoolean(1);
             return exist;
+        }
+        return false;
+    }
+
+    public boolean existsByTelephone(String telephone) {
+        String sql = "SELECT EXISTS (SELECT 1 FROM users WHERE telephone = ?)";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, telephone);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getBoolean(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return false;
     }

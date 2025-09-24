@@ -43,11 +43,10 @@ public class AuthService {
     public boolean Login(String email , String password) throws SQLException {
         User UserID = userRepository.login(email,password);
         if(UserID != null){
-            System.out.print("YOU ARE LOGGED SUCCESSFULLY !");
             isOnline = true;
             return true;
         }
-        System.out.print("FAILED TO LOG IN , CREDENTIALS INVALID !");
+        System.err.println("\nFAILED TO LOG IN , CREDENTIALS INVALID !\n");
         return false;
     }
 
