@@ -28,10 +28,12 @@ public class AuthView {
         UserRepository = new UserRepositoryImp(conn);
         AuthService = new AuthService(UserRepository);
         UserService = new UserService(UserRepository);
-        isConnected = services.AuthService.isOnline;
+        isConnected = services.AuthService.isIsOnline();
     }
 
     public void showLoginMenu() throws SQLException {
+        System.out.println(isConnected);
+
         System.out.println("===================================");
         System.out.println("         🔐 Login Menu              ");
         System.out.println("===================================");
@@ -42,7 +44,7 @@ public class AuthView {
         System.out.print("🔑 Password : ");
         String password = scanner.next();
 
-        this.AuthService.Login(email,password);
+        services.AuthService.setIsOnline(this.AuthService.Login(email,password));
         AcceuilView = new Acceuil();
     }
 

@@ -5,6 +5,7 @@ import enums.VirementStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -16,10 +17,10 @@ public class Transaction {
     private TransactionsType type ;
     private VirementStatus Status ;
     private Fee_rule fee_Rule ;
-    private Date updatedAt ;
-    private Date createdAt ;
+    private LocalDateTime updatedAt ;
+    private LocalDateTime createdAt ;
 
-    public Transaction(UUID id, BigDecimal amount, Account transferIN, Account transferOUT, TransactionsType type, VirementStatus status, Fee_rule fee_Rule, Date updatedAt, Date createdAt) {
+    public Transaction(UUID id, BigDecimal amount, Account transferIN, Account transferOUT, TransactionsType type, VirementStatus status, Fee_rule fee_Rule, LocalDateTime updatedAt, LocalDateTime createdAt) {
         this.id = id;
         this.amount = amount;
         this.transferIN = transferIN;
@@ -32,7 +33,7 @@ public class Transaction {
     }
 
     public UUID getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(UUID id) {
@@ -87,19 +88,19 @@ public class Transaction {
         this.fee_Rule = fee_Rule;
     }
 
-    public Date getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 }

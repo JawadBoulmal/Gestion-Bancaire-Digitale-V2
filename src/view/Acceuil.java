@@ -20,7 +20,7 @@ public class Acceuil {
     Connection conn ;
     UserRepository UserRepository ;
     AuthService AuthService ;
-    boolean isConnected = services.AuthService.isOnline;
+    boolean isConnected;
     private User userInfos = UserRepositoryImp.userInfo;
     private AuthView AuthView ;
 
@@ -29,11 +29,14 @@ public class Acceuil {
         UserRepository = new UserRepositoryImp(conn);
         AuthService = new AuthService(UserRepository);
         AuthView = new AuthView();
+        this.isConnected = services.AuthService.isIsOnline();
+
         this.showPrincipleMenu();
     }
 
     public void showPrincipleMenu() throws SQLException {
         try{
+            System.out.println(isConnected);
             if(isConnected){
                 System.out.println("===================================================");
                 System.out.println("  Connecté (« Logged in as [ "+ userInfos.getFirstName() + " " + userInfos.getLastName()+" ] ») " );
@@ -66,9 +69,7 @@ public class Acceuil {
                         break;
                 }
 
-            }
-            else
-            {
+            }else {
                 System.out.println("===================================");
                 System.out.println("        🏠 Accueil (Non Connecté)       ");
                 System.out.println("===================================");

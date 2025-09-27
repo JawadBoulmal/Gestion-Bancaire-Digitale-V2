@@ -5,6 +5,7 @@ import enums.TransactionsType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,32 +17,33 @@ public class Account {
     private Boolean isActive;
     private AccountType type;
     private BigDecimal solde;
-    private Date createdAt ;
-    private Date updatedAt ;
+    private LocalDateTime createdAt ;
+    private LocalDateTime updatedAt ;
 
-    public Account(String accountId , BigDecimal balance , Client client,Date createdAt,Date updatedAt) {
+    public Account(String accountId , BigDecimal balance , AccountType type , Client client,LocalDateTime createdAt,LocalDateTime updatedAt) {
         this.id = accountId;
         this.isActive = true;
         this.solde = balance;
+        this.type = type;
         this.client = client;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Date getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 

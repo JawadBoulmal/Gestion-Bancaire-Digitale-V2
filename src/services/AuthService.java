@@ -19,6 +19,14 @@ public class AuthService {
         userService = new UserService(this.userRepository);
     }
 
+    public static boolean isIsOnline() {
+        return isOnline;
+    }
+
+    public static void setIsOnline(boolean isOnline) {
+        AuthService.isOnline = isOnline;
+    }
+
     public boolean Register(String firstName , String lastName, String telephone, String CIN, BigDecimal Salaire, String email, String password , Roles role) throws SQLException {
         boolean User ;
 
@@ -31,7 +39,7 @@ public class AuthService {
         if(role == Roles.CLIENT){
             User = this.userService.CreateClient( firstName ,  lastName,  telephone,  CIN,  Salaire, email, password);
         }else {
-            User = this.userService.CreateOthers( firstName ,  lastName,  telephone,  CIN, email, password);
+            User = this.userService.CreateOthers( firstName ,  lastName,  telephone,  CIN, email, password,role);
         }
         if(User){
             return true;
@@ -43,9 +51,10 @@ public class AuthService {
     public boolean Login(String email , String password) throws SQLException {
         User UserID = userRepository.login(email,password);
         if(UserID != null){
-            isOnline = true;
+            setIsOnline(true);
             return true;
         }
+        setIsOnline(false);
         System.err.println("\nFAILED TO LOG IN , CREDENTIALS INVALID !\n");
         return false;
     }
