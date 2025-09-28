@@ -134,6 +134,11 @@ public class ComptesView implements View {
             pincipaleMenu();
             return;
         }
+        else if (user.getRole() != Roles.CLIENT){
+            System.out.println("The user should be client ! try again with another user .");
+            pincipaleMenu();
+            return;
+        }
 
         ArrayList<Account> accounts = AccountService.getAccountByUserId(String.valueOf(userId));
         List<AccountType> typesExist = accounts.stream().map(Account::getType).toList();

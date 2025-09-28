@@ -262,7 +262,7 @@ ORDER BY account_total DESC
                 }else{
                     switch (role){
                         case "MANAGER"->{
-                            new Manager(
+                            return new Manager(
                                     rs.getObject("id", java.util.UUID.class),
                                     rs.getString("firstname"),
                                     rs.getString("lastname"),
@@ -273,7 +273,7 @@ ORDER BY account_total DESC
                             );
                         }
                         case "ADMIN"->{
-                            new Admin(
+                            return new Admin(
                                     rs.getObject("id", java.util.UUID.class),
                                     rs.getString("firstname"),
                                     rs.getString("lastname"),
@@ -284,7 +284,7 @@ ORDER BY account_total DESC
                             );
                         }
                         case "AUDITOR"->{
-                            new Auditor(
+                            return new Auditor(
                                     rs.getObject("id", java.util.UUID.class),
                                     rs.getString("firstname"),
                                     rs.getString("lastname"),
