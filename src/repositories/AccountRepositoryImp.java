@@ -140,7 +140,22 @@ public class AccountRepositoryImp implements AccountRepository {
     }
 
     @Override
-    public boolean close() {
+    public boolean closeORactive(boolean status , UUID id) {
+            String sql =
+           """
+           UPDATE accounts SET isActive = ? , updated_at = now() WHERE accounts.id = ?
+           """;
+            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                stmt.setBoolean(1, status);
+                stmt.setObject(2, id);
+                int rowUpdated = stmt.executeUpdate();
+                if(rowUpdated > 0){
+                    return true;
+                }
+                return false;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         return false;
     }
 

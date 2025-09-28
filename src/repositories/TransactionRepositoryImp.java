@@ -69,7 +69,7 @@ public class TransactionRepositoryImp implements TransactionRepository {
         UUID result = this.create(transaction);
         if(result != null){
             String insertTransaction = """
-                   UPDATE accounts SET solde = ? where id = ?;
+                   UPDATE accounts SET solde = ? , updated_at = now() where id = ?;
                    """;
             try (PreparedStatement stmt = connection.prepareStatement(insertTransaction)) {
                 stmt.setObject(1, transferIN.getSolde().add(transaction.getAmount()));

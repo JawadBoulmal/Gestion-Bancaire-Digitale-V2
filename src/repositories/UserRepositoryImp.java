@@ -306,7 +306,7 @@ ORDER BY account_total DESC
     public User update(User user){
         String sql = """
                 UPDATE users
-                SET firstname = ?, lastname = ?, email = ?, telephone = ?, role =  ?::roles , password = ?
+                SET firstname = ?, lastname = ?, email = ?, telephone = ?, role =  ?::roles , password = ? , updated_at = now()
                 WHERE id = ?
             """;
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {

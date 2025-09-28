@@ -30,6 +30,14 @@ public class AccountService {
         return this.AccountRepo.getAccountsByUserID(UUID.fromString(user_id));
     }
 
+    public boolean getAccountById(UUID AccID){
+        Account acc = this.AccountRepo.getAccountById(AccID);
+        if(acc != null){
+            return true;
+        }
+        return false;
+    }
+
     public UUID CreateNewAccount(UUID userID , BigDecimal amount, AccountType type){
         String accountID = String.valueOf(UUID.randomUUID());
         User client = this.UserService.getUserById("app", Optional.of(userID));
@@ -43,6 +51,14 @@ public class AccountService {
                 LocalDateTime.now()
         );
         return this.AccountRepo.create(account);
+    }
+
+    public boolean closeORactiveAcc(boolean status, UUID id){
+        if(getAccountById(id)){
+            return this.AccountRepo.closeORactive(status,id);
+        }
+        System.out.println("Account Not Found !");
+        return false;
     }
 
 }

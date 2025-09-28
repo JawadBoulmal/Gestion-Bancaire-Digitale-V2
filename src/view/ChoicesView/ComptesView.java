@@ -46,14 +46,25 @@ public class ComptesView implements View {
         System.out.println("===================================================");
         System.out.println("             Comptes - Options");
         System.out.println("===================================================");
-        System.out.println("  1️⃣   Create User");
-        System.out.println("  2️⃣   List Users");
-        System.out.println("  3️⃣   List Accounts");
-        System.out.println("  4️⃣   Update profile");
-        System.out.println("  5️⃣   Change password");
-        System.out.println("  6️⃣   Close account");
-        System.out.println("  7️⃣   Create account");
-        System.out.println("  0️⃣   Back to Main Menu");
+        String[] options = {
+                "Create User",
+                "List Users",
+                "List Accounts",
+                "Update profile",
+                "Change password",
+                "Close account",
+                "Activate account",
+                "Create account",
+                "Back to Main Menu"
+        };
+
+        for (int i = 0; i < options.length; i++) {
+            if (i == options.length - 1) {
+                System.out.printf("  0️⃣   %s%n", options[i]);
+            } else {
+                System.out.printf("  %d️⃣   %s%n", i + 1, options[i]);
+            }
+        }
         System.out.println("===================================================");
         System.out.print("➤ Choose an option: ");
         int choice = scanner.nextInt();
@@ -104,7 +115,15 @@ public class ComptesView implements View {
                 updateProfile();
                 pincipaleMenu();
                 break;
+            case 6:
+                closeOrActiveAccount(false);
+                pincipaleMenu();
+                break;
             case 7:
+                closeOrActiveAccount(true);
+                pincipaleMenu();
+                break;
+            case 8:
                 createAccountForUser();
                 pincipaleMenu();
                 break;
@@ -116,13 +135,35 @@ public class ComptesView implements View {
         }
     }
 
+    private void closeOrActiveAccount(boolean status){
+        System.out.print("Enter The Account ID : ");
+        String accountIdInput = scanner.next();
+        UUID accID;
+        try {
+            accID = UUID.fromString(accountIdInput);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid UUID format!");
+            return;
+        }
+        boolean result = this.AccountService.closeORactiveAcc(status,accID);
+        if(result){
+            if(status){
+                System.out.println("Account has been Activated successfully");
+                return;
+            }
+            System.out.println("Account has been Deactivated successfully");
+            return;
+        }
+        System.out.println("Failed to deactivate the account try again !!");
+    }
+
     private void createAccountForUser() throws SQLException {
         System.out.print("Enter The User ID : ");
         String useridInput = scanner.next();
 
         UUID userId;
         try {
-            userId = UUID.fromString(useridInput); // validate UUID
+            userId = UUID.fromString(useridInput);
         } catch (IllegalArgumentException e) {
             System.out.println("Invalid UUID format!");
             return;

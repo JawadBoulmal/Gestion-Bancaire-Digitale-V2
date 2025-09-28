@@ -12,5 +12,5 @@ public interface AccountRepository {
     Account getAccountById(UUID id);
     ArrayList<Account> getAccountsByUserID(UUID id);
     boolean updatePassword();
-    boolean close();
+    boolean closeORactive(boolean status,UUID accountID);
 }
