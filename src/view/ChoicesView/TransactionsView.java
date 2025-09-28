@@ -58,12 +58,69 @@ public class TransactionsView implements View {
             case 1 :
                 ShowDeposit();
                 break;
+            case 2 :
+                ShowWithdraw();
+                break;
+            case 3 :
+                ShowTransfer();
+                break;
 
 
             default:
                 System.err.println("\nINVALID OPTION\n");
                 pincipaleMenu();
                 break;
+        }
+    }
+
+
+
+    public void ShowTransfer(){
+        try{
+
+
+
+
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public void ShowWithdraw()  {
+        try{
+            System.out.println("0 : Menu ");
+            System.out.print("Enter The Account ID : ");
+            String AccountID = scanner.next();
+            UUID TransfertIN = UUID.fromString(AccountID);
+
+            System.out.print("Amount That you want to Withdraw : ");
+            BigDecimal Amount = scanner.nextBigDecimal();
+
+            UUID result = transactionService.AddTransaction(Amount,TransfertIN,TransfertIN, TransactionsType.WITHDRAW);
+            if (result != null){
+                System.out.println("╔══════════════════════════════════════╗");
+                System.out.println("   💰 Withdraw Completed Successfully   ");
+                System.out.println("   😉 See you again soon!               ");
+                System.out.println("╚══════════════════════════════════════╝");
+                pincipaleMenu();
+            }else{
+                System.out.println("==============================================");
+                System.out.println(" Withdraw Failed !! Try Again later . ");
+                System.out.println("==============================================");
+                pincipaleMenu();
+            }
+        }catch (NumberFormatException e) {
+            System.out.println("╔══════════════════════════════════════════╗");
+            System.out.println("   ✘ Withdraw Amount Value is Not Valid!     ");
+            System.out.println("   🔄 Please try again later.               ");
+            System.out.println("╚══════════════════════════════════════════╝");
+        } catch (InputMismatchException e) {
+            System.out.println("There is a problem , try again !");
+            ShowDeposit();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

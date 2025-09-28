@@ -31,7 +31,7 @@ public class TransactionRepositoryImp implements TransactionRepository {
                     ?,
                     ?,
                     ?,
-                    'PENDING',
+                    ?,
                     null,
                     now(),
                     now()
@@ -43,6 +43,7 @@ public class TransactionRepositoryImp implements TransactionRepository {
                 stmt.setObject(2, UUID.fromString(transaction.getTransferIN().getId()));
                 stmt.setObject(3, UUID.fromString(transaction.getTransferOUT().getId()));
                 stmt.setObject(4, transaction.getType().name(), java.sql.Types.OTHER);
+                stmt.setObject(5, transaction.getStatus().name(), java.sql.Types.OTHER);
                 stmt.executeUpdate();
             }
             return transaction.getId();
@@ -83,7 +84,32 @@ public class TransactionRepositoryImp implements TransactionRepository {
 
 
     @Override
-    public boolean withdraw(BigDecimal amount) {
+    public boolean withdraw(BigDecimal amount,Account transferIN,Account transferOUT) throws SQLException {
+        UUID id = UUID.randomUUID();
+        Transaction transaction = new Transaction(
+                id,
+                amount,
+                transferIN,
+                transferOUT,
+                TransactionsType.WITHDRAW,
+                VirementStatus.SEETLED,
+                null,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        UUID result = this.create(transaction);
+        if(result != null){
+            String insertTransaction = """
+                   UPDATE accounts SET solde = ? , updated_at = now() where id = ?;
+                   """;
+            try (PreparedStatement stmt = connection.prepareStatement(insertTransaction)) {
+                stmt.setObject(1, transferIN.getSolde().subtract(transaction.getAmount()));
+                stmt.setObject(2, UUID.fromString(transaction.getTransferIN().getId()));
+                stmt.executeUpdate();
+            }
+            return true;
+        }
         return false;
     }
 

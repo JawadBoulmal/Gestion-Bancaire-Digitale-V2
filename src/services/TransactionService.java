@@ -40,7 +40,12 @@ public class TransactionService {
                 LocalDateTime.now(),
                 LocalDateTime.now()
         );
-        boolean result = this.TransactionRepo.deposit(Ammount,transferINAcc,transferOUTAcc);
+        boolean result = false ;
+        if(type == TransactionsType.DEPOSIT){
+            result = this.TransactionRepo.deposit(Ammount,transferINAcc,transferOUTAcc);
+        } else if (type == TransactionsType.WITHDRAW) {
+            result = this.TransactionRepo.withdraw(Ammount,transferINAcc,transferOUTAcc);
+        }
         if(result){
             return this.TransactionRepo.create(transaction);
         }else{
