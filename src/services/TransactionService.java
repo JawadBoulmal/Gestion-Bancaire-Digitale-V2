@@ -25,29 +25,28 @@ public class TransactionService {
         this.AccountRepo = AccountRepo;
     }
 
-    public UUID AddTransaction(BigDecimal Ammount, UUID transferIN, UUID transferOUT, TransactionsType type) throws SQLException {
-        UUID id = UUID.randomUUID();
+    public UUID AddTransaction(BigDecimal Ammount, UUID transferIN, UUID transferOUT, TransactionsType type , VirementStatus Status) throws SQLException {
         Account transferINAcc = this.AccountRepo.getAccountById(transferIN);
         Account transferOUTAcc = this.AccountRepo.getAccountById(transferOUT);
-        Transaction transaction = new Transaction(
-                id,
-                Ammount,
-                transferINAcc,
-                transferOUTAcc,
-                type,
-                VirementStatus.PENDING,
-                null,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
-        boolean result = false ;
+
+        UUID result = null;
         if(type == TransactionsType.DEPOSIT){
             result = this.TransactionRepo.deposit(Ammount,transferINAcc,transferOUTAcc);
         } else if (type == TransactionsType.WITHDRAW) {
+            if(transferINAcc.getSolde().compareTo(Ammount) < 0){
+                System.out.println("The Account Solde is not enough to withdraw !!");
+                return null;
+            }
             result = this.TransactionRepo.withdraw(Ammount,transferINAcc,transferOUTAcc);
+        } else if (type == TransactionsType.TRANSFERIN) {
+            if(transferINAcc.getSolde().compareTo(Ammount) < 0){
+                System.out.println("The Account Solde is not enough to transfer !!");
+                return null;
+            }
+            result = this.TransactionRepo.transfer(Ammount,transferINAcc,transferOUTAcc);
         }
-        if(result){
-            return this.TransactionRepo.create(transaction);
+        if(result != null){
+            return result;
         }else{
             return null;
         }

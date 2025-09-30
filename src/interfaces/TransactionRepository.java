@@ -1,5 +1,6 @@
 package interfaces;
 
+import enums.TransactionsType;
 import modules.Account;
 import modules.Transaction;
 
@@ -9,9 +10,9 @@ import java.util.UUID;
 
 public interface TransactionRepository {
     UUID create(Transaction transaction) throws SQLException;
-    boolean deposit(BigDecimal amount, Account transferIN, Account transferOUT) throws SQLException;
-    boolean withdraw(BigDecimal amount,Account transferIN,Account transferOUT) throws SQLException;
-    boolean transfer(BigDecimal amount);
+    UUID deposit(BigDecimal amount, Account transferIN, Account transferOUT) throws SQLException;
+    UUID withdraw(BigDecimal amount,Account transferIN,Account transferOUT) throws SQLException;
+    UUID transfer(BigDecimal amount,Account transferIN,Account transferOUT) throws SQLException;
     boolean showHistory(BigDecimal amount);
 
 }

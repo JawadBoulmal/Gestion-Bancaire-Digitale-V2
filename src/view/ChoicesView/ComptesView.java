@@ -1,6 +1,8 @@
 package view.ChoicesView;
 
 import Database.Database;
+import Utils.ConsoleColors;
+import Utils.*;
 import enums.AccountType;
 import enums.Roles;
 import interfaces.UserRepository;
@@ -20,6 +22,8 @@ import java.sql.Array;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+
+import static Utils.Utils.maskEmail;
 
 public class ComptesView implements View {
     private Scanner scanner = new Scanner(System.in);
@@ -136,11 +140,19 @@ public class ComptesView implements View {
     }
 
     private void closeOrActiveAccount(boolean status){
-        System.out.print("Enter The Account ID : ");
-        String accountIdInput = scanner.next();
+        List<User> users = this.UserService.listUsers();
+        System.out.print("Enter The User Key : ");
+        int userKey = scanner.nextInt();
+        User client = users.get(userKey-1);
+        List<Account> userAccounts = this.AccountService.getAccountByUserId(client.getId().toString());
+
+        this.AccountService.listUserAccounts(userAccounts);
+
+        int keyAccount = scanner.nextInt();
+
         UUID accID;
         try {
-            accID = UUID.fromString(accountIdInput);
+            accID = UUID.fromString(userAccounts.get(keyAccount - 1).getId());
         } catch (IllegalArgumentException e) {
             System.out.println("Invalid UUID format!");
             return;
@@ -344,10 +356,15 @@ public class ComptesView implements View {
             return;
         }
 
-        String format = "| %-36s | %-20s | %-30s | %-10s | %-10s |%n";
-        System.out.println("===========================================================================================================================");
-        System.out.printf(format, "USER ID", "FULL NAME", "EMAIL", "ROLE","TOTAL ACCOUNTS");
-        System.out.println("===========================================================================================================================");
+        String format = "| %-36s | %-20s | %-30s | %-10s | %-16s |%n";
+        System.out.printf(
+                format,
+                ConsoleColors.colorizeCell("User ID",ConsoleColors.YELLOW,36),
+                ConsoleColors.colorizeCell("FULL NAME",ConsoleColors.YELLOW,20),
+                ConsoleColors.colorizeCell("EMAIL",ConsoleColors.YELLOW,30),
+                ConsoleColors.colorizeCell("ROLE",ConsoleColors.YELLOW,10),
+                ConsoleColors.colorizeCell("TOTAL ACCOUNTS",ConsoleColors.YELLOW,16)
+               );
 
         for (User user : users) {
             String fullName = user.getFirstName() + " " + user.getLastName();
@@ -355,7 +372,7 @@ public class ComptesView implements View {
                 System.out.printf(format,
                         user.getId(),
                         fullName,
-                        user.getEmail(),
+                        maskEmail(user.getEmail()),
                         user.getRole().name(),
                         0
                 );
@@ -363,7 +380,7 @@ public class ComptesView implements View {
                 System.out.printf(format,
                         user.getId(),
                         fullName,
-                        user.getEmail(),
+                        maskEmail(user.getEmail()),
                         user.getRole().name(),
                         user.getPassword()
                 );
@@ -451,10 +468,11 @@ public class ComptesView implements View {
 
     public void listAccounts() throws SQLException {
         try{
-            System.out.print("Enter The User ID : ");
-            String userid = scanner.next();
+            List<User> users = this.UserService.listUsers();
+            System.out.print("Enter The User Key : ");
+            int userkey = scanner.nextInt();
 
-            ArrayList<Account> Accounts = AccountService.getAccountByUserId(userid);
+            ArrayList<Account> Accounts = AccountService.getAccountByUserId(users.get(userkey - 1).getId().toString());
             Optional<Account> optionalAccount = Accounts.stream().findFirst();
 
             if(Accounts.isEmpty()){

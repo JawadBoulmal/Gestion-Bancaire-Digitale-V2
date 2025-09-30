@@ -36,7 +36,6 @@ public class Acceuil {
 
     public void showPrincipleMenu() throws SQLException {
         try{
-            System.out.println(isConnected);
             if(isConnected){
                 System.out.println("===================================================");
                 System.out.println("  Connecté (« Logged in as [ "+ userInfos.getFirstName() + " " + userInfos.getLastName()+" ] ») " );

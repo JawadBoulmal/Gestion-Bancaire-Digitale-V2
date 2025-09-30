@@ -53,7 +53,7 @@ public class TransactionRepositoryImp implements TransactionRepository {
     }
 
     @Override
-    public boolean deposit(BigDecimal amount,Account transferIN,Account transferOUT) throws SQLException {
+    public UUID deposit(BigDecimal amount,Account transferIN,Account transferOUT) throws SQLException {
         UUID id = UUID.randomUUID();
         Transaction transaction = new Transaction(
                 id,
@@ -77,14 +77,14 @@ public class TransactionRepositoryImp implements TransactionRepository {
                 stmt.setObject(2, UUID.fromString(transaction.getTransferIN().getId()));
                 stmt.executeUpdate();
             }
-            return true;
+            return result;
         }
-        return false;
+        return result;
     }
 
 
     @Override
-    public boolean withdraw(BigDecimal amount,Account transferIN,Account transferOUT) throws SQLException {
+    public UUID withdraw(BigDecimal amount,Account transferIN,Account transferOUT) throws SQLException {
         UUID id = UUID.randomUUID();
         Transaction transaction = new Transaction(
                 id,
@@ -108,14 +108,51 @@ public class TransactionRepositoryImp implements TransactionRepository {
                 stmt.setObject(2, UUID.fromString(transaction.getTransferIN().getId()));
                 stmt.executeUpdate();
             }
-            return true;
+            return result;
         }
-        return false;
+        return result;
     }
 
     @Override
-    public boolean transfer(BigDecimal amount) {
-        return false;
+    public UUID transfer(BigDecimal amount,Account transferIN,Account transferOUT) throws SQLException  {
+        UUID id = UUID.randomUUID();
+        Transaction transaction = new Transaction(
+                id,
+                amount,
+                transferIN,
+                transferOUT,
+                TransactionsType.TRANSFERIN,
+                VirementStatus.SEETLED,
+                null,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+        connection.setAutoCommit(false);
+        UUID result = null;
+        try{
+            try (PreparedStatement stmt = connection.prepareStatement(
+                    "UPDATE accounts SET solde = ?, updated_at = now() WHERE id = ?")) {
+                stmt.setBigDecimal(1, transferIN.getSolde().subtract(amount));
+                stmt.setObject(2, transferIN.getId(),java.sql.Types.OTHER);
+                stmt.executeUpdate();
+            }
+
+            try (PreparedStatement stmt = connection.prepareStatement(
+                    "UPDATE accounts SET solde = ?, updated_at = now() WHERE id = ?")) {
+                stmt.setBigDecimal(1, transferOUT.getSolde().add(amount));
+                stmt.setObject(2, transferOUT.getId(),java.sql.Types.OTHER);
+                stmt.executeUpdate();
+            }
+            result = this.create(transaction);
+            connection.commit();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            connection.rollback();
+        } finally {
+            connection.setAutoCommit(true);
+        }
+        return result;
     }
 
     @Override
