@@ -2,10 +2,13 @@ package repositories;
 
 import enums.TransactionsType;
 import enums.VirementStatus;
+import interfaces.BankFeeRepository;
 import interfaces.TransactionRepository;
 import modules.Account;
+import modules.BankFee;
 import modules.Transaction;
 import modules.User;
+import services.BankFeeService;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -16,6 +19,9 @@ import java.util.UUID;
 
 public class TransactionRepositoryImp implements TransactionRepository {
     private final Connection connection;
+    private BankFeeRepositoryImp bankFeeRepo;
+    private BankFeeService bankFeeService;
+
 
     public TransactionRepositoryImp(Connection connection) {
         this.connection = connection;
@@ -25,8 +31,9 @@ public class TransactionRepositoryImp implements TransactionRepository {
     public UUID create(Transaction transaction) throws SQLException {
         try{
             String insertTransaction = """
-            INSERT INTO transactions(amount, transferIN, transferOUT, type, status, fee_Rule, created_at, updated_at)
+            INSERT INTO transactions(amount, transferIN, transferOUT, type, status,id, fee_Rule, created_at, updated_at)
             VALUES (
+                    ?,
                     ?,
                     ?,
                     ?,
@@ -44,6 +51,7 @@ public class TransactionRepositoryImp implements TransactionRepository {
                 stmt.setObject(3, UUID.fromString(transaction.getTransferOUT().getId()));
                 stmt.setObject(4, transaction.getType().name(), java.sql.Types.OTHER);
                 stmt.setObject(5, transaction.getStatus().name(), java.sql.Types.OTHER);
+                stmt.setObject(6, transaction.getId());
                 stmt.executeUpdate();
             }
             return transaction.getId();
@@ -162,10 +170,23 @@ public class TransactionRepositoryImp implements TransactionRepository {
                 stmt.executeUpdate();
             }
 
-
             result = this.create(transaction);
             connection.commit();
 
+            if(result != null && isOut){
+                this.bankFeeRepo = new BankFeeRepositoryImp(this.connection);
+                this.bankFeeService = new BankFeeService(this.bankFeeRepo);
+                BankFee bankFee = new BankFee(
+                        UUID.randomUUID(),
+                        transaction,
+                        "This is transfer out",
+                        BigDecimal.ZERO,
+                        amount.multiply(new BigDecimal("0.05")),
+                        LocalDateTime.now(),
+                        LocalDateTime.now()
+                );
+                this.bankFeeService.SaveBankFee(bankFee);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             connection.rollback();
