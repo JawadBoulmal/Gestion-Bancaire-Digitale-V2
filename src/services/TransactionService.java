@@ -43,7 +43,14 @@ public class TransactionService {
                 System.out.println("The Account Solde is not enough to transfer !!");
                 return null;
             }
-            result = this.TransactionRepo.transfer(Ammount,transferINAcc,transferOUTAcc);
+            result = this.TransactionRepo.transfer(Ammount,transferINAcc,transferOUTAcc,false);
+        } else if (type == TransactionsType.TRANSFEROUT) {
+            if(transferINAcc.getSolde().compareTo(Ammount.multiply(new BigDecimal("0.05"))) < 0){
+                System.out.println("The Account Solde is not enough to transfer !!");
+                System.out.println("Remember the fees will be applied +5%");
+                return null;
+            }
+            result = this.TransactionRepo.transfer(Ammount,transferINAcc,transferOUTAcc,true);
         }
         if(result != null){
             return result;

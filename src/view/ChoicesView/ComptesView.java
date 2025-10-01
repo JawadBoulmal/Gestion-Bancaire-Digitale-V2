@@ -495,11 +495,11 @@ public class ComptesView implements View {
             System.out.println("╠════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
 
             for (Account acc : Accounts) {
-                System.out.printf("║ %-" + colId + "s | %" + colSolde + "d | %" + colSalaire + "d | %-"
+                System.out.printf("║ %-" + colId + "s | %" + colSolde + ".2f | %" + colSalaire + ".2f | %-"
                                 + colType + "s | %-"+ colStatus +"s ║%n",
                         acc.getId(),
-                        acc.getSolde().intValue(),         // assuming BigDecimal
-                        acc.getClient().getSalaire().intValue(),
+                        acc.getSolde().floatValue(),
+                        acc.getClient().getSalaire().floatValue(),
                         acc.getType(),
                         acc.getActive() ? "Actived" : "Disactivated");
             }

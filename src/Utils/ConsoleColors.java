@@ -11,10 +11,8 @@ public class ConsoleColors {
     public static final String CYAN = "\u001B[36m";
     public static final String WHITE = "\u001B[37m";
 
-    // Background colors
     public static final String BLACK_BACKGROUND = "\u001B[40m";
     public static final String RED_BACKGROUND = "\u001B[41m";
-    // ... add more background colors as needed
 
     public static String colorizeCell(String text, String color, int width) {
         return color + String.format("%-" + width + "s", text) + ConsoleColors.RESET;

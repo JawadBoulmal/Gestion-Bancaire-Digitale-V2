@@ -61,7 +61,7 @@ public class TransactionRepositoryImp implements TransactionRepository {
                 transferIN,
                 transferOUT,
                 TransactionsType.DEPOSIT,
-                VirementStatus.PENDING,
+                VirementStatus.SEETLED,
                 null,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -114,25 +114,43 @@ public class TransactionRepositoryImp implements TransactionRepository {
     }
 
     @Override
-    public UUID transfer(BigDecimal amount,Account transferIN,Account transferOUT) throws SQLException  {
+    public UUID transfer(BigDecimal amount,Account transferIN,Account transferOUT,boolean isOut) throws SQLException  {
         UUID id = UUID.randomUUID();
-        Transaction transaction = new Transaction(
-                id,
-                amount,
-                transferIN,
-                transferOUT,
-                TransactionsType.TRANSFERIN,
-                VirementStatus.SEETLED,
-                null,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
+        Transaction transaction ;
+        if(!isOut){
+            transaction = new Transaction(
+                    id,
+                    amount,
+                    transferIN,
+                    transferOUT,
+                    TransactionsType.TRANSFERIN,
+                    VirementStatus.SEETLED,
+                    null,
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+            );
+        }else{
+            transaction = new Transaction(
+                    id,
+                    amount,
+                    transferIN,
+                    transferOUT,
+                    TransactionsType.TRANSFEROUT,
+                    VirementStatus.PENDING,
+                    null,
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+            );
+        }
+
+
         connection.setAutoCommit(false);
         UUID result = null;
         try{
+            BigDecimal amountWithPercent = amount.add(amount.multiply(new BigDecimal("0.05")));
             try (PreparedStatement stmt = connection.prepareStatement(
                     "UPDATE accounts SET solde = ?, updated_at = now() WHERE id = ?")) {
-                stmt.setBigDecimal(1, transferIN.getSolde().subtract(amount));
+                stmt.setBigDecimal(1, transferIN.getSolde().subtract(amountWithPercent));
                 stmt.setObject(2, transferIN.getId(),java.sql.Types.OTHER);
                 stmt.executeUpdate();
             }
@@ -143,6 +161,8 @@ public class TransactionRepositoryImp implements TransactionRepository {
                 stmt.setObject(2, transferOUT.getId(),java.sql.Types.OTHER);
                 stmt.executeUpdate();
             }
+
+
             result = this.create(transaction);
             connection.commit();
 
