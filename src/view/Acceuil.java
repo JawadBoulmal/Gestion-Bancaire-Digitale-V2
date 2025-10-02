@@ -6,6 +6,7 @@ import modules.User;
 import repositories.UserRepositoryImp;
 import services.AuthService;
 import view.ChoicesView.ComptesView;
+import view.ChoicesView.CreditView;
 import view.ChoicesView.TransactionsView;
 
 import java.sql.Connection;
@@ -62,6 +63,9 @@ public class Acceuil {
                         TransactionsView TransactionsView = new TransactionsView();
                         TransactionsView.pincipaleMenu();
                         break;
+                    case 4:
+                        CreditView CreditView = new CreditView();
+                        CreditView.pincipaleMenu();
                     default:
                         System.err.println("\nINVALID OPTION\n");
                         showPrincipleMenu();

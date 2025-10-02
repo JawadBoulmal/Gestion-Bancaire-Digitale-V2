@@ -4,6 +4,7 @@
     <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/8d02cf82-4628-482f-85d7-e67bd15e0c10/console.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/repositories/AccountRepositoryImp.java" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/src/repositories/BankFeeRepositoryImp.java" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/repositories/CreditRepositoryImp.java" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/src/repositories/TransactionRepositoryImp.java" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/src/repositories/UserRepositoryImp.java" dialect="GenericSQL" />
   </component>

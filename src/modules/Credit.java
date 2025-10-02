@@ -4,6 +4,7 @@ import enums.CreditStatus;
 import enums.CreditType;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -18,10 +19,11 @@ public class Credit {
     private CreditType creditType;
     private Account account;
     private CreditStatus status;
-    private Date createdAt;
-    private Date updatedAt;
+    private BigDecimal amountEach;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    public Credit(UUID id, BigDecimal amount, int duree, float taux, Fee_rule feeRule, String jutstification, CreditType creditType, Account account, CreditStatus status, Date createdAt, Date updatedAt) {
+    public Credit(UUID id, BigDecimal amount, int duree, float taux, Fee_rule feeRule, String jutstification, CreditType creditType, Account account, CreditStatus status, BigDecimal amountEach, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.amount = amount;
         this.duree = duree;
@@ -31,23 +33,32 @@ public class Credit {
         this.creditType = creditType;
         this.account = account;
         this.status = status;
+        this.amountEach = amountEach;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
-    public Date getUpdatedAt() {
+    public BigDecimal getAmountEach() {
+        return amountEach;
+    }
+
+    public void setAmountEach(BigDecimal amountEach) {
+        this.amountEach = amountEach;
+    }
+
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
