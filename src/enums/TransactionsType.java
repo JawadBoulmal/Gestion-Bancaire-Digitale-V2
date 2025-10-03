@@ -5,5 +5,6 @@ public enum TransactionsType {
     WITHDRAW,
     TRANSFERIN,
     TRANSFEROUT,
-    ETRANGER
+    ETRANGER,
+    CREDIT
 }

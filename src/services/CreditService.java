@@ -1,17 +1,16 @@
 package services;
 
 import Database.Database;
-import enums.AccountType;
-import enums.CreditStatus;
-import enums.CreditType;
+import enums.*;
 import modules.Account;
+import modules.BankFee;
 import modules.Credit;
-import repositories.AccountRepositoryImp;
-import repositories.CreditRepositoryImp;
-import repositories.UserRepositoryImp;
+import modules.Transaction;
+import repositories.*;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -28,12 +27,26 @@ public class CreditService {
     private AccountRepositoryImp accountRepo;
     private AccountService accountService;
 
+    private BankFeeService bankFeeService;
+    private BankFeeRepositoryImp bankFeeRepositoryImp;
+
+    private TransactionService TransactionService;
+    private TransactionRepositoryImp TransactionRepositoryImp;
+    private AccountRepositoryImp AccountRepositoryImp;
+
     public CreditService(CreditRepositoryImp repo){
         this.creditRepository = repo;
         this.conn = Database.getInstance().getConnection();
         UserRepositoryImp userRepository = new UserRepositoryImp(conn);
         this.accountRepo = new AccountRepositoryImp(conn);
         this.accountService = new AccountService(accountRepo,userRepository);
+
+        this.bankFeeRepositoryImp = new BankFeeRepositoryImp(this.conn);
+        this.bankFeeService = new BankFeeService(this.bankFeeRepositoryImp);
+
+        this.TransactionRepositoryImp = new TransactionRepositoryImp(this.conn);
+        this.AccountRepositoryImp = new AccountRepositoryImp(this.conn);
+        this.TransactionService = new TransactionService(this.TransactionRepositoryImp,this.AccountRepositoryImp);
     }
 
     public boolean requestCredit(Credit credit){
@@ -51,7 +64,7 @@ public class CreditService {
         return this.creditRepository.getCreditsByUserID(userID);
     }
 
-    public boolean createCredit(BigDecimal amount , int duree ,float taux , String justification , CreditType type,Account account){
+    public Credit createCredit(BigDecimal amount , int duree ,float taux , String justification , CreditType type,Account account) throws SQLException {
 
         int duration = duree;
         BigDecimal ammount = amount;
@@ -59,7 +72,7 @@ public class CreditService {
         BigDecimal amountPercentTotal = ammount.multiply(realTaux).add(ammount) ;
         BigDecimal ForMonth = amountPercentTotal.divide(new BigDecimal(duration));
         BigDecimal Salaire40per = account.getClient().getSalaire().multiply(new BigDecimal("0.4"));
-
+        BigDecimal BankFeeRev = ammount.multiply(realTaux);
 
 
         List<Credit> ListCredits = getCreditsByUserID(account.getClient().getId());
@@ -130,9 +143,8 @@ public class CreditService {
         System.out.println(colorizeCell("RESULT : ",RED,1)+(isAble ? "He is able to take this credit ." : "this client not able to take this credit !!" ));
 
         if(isAble){
-            return requestCredit(credit);
-        }else{
-            return false;
+            return credit;
         }
+        return null;
     }
 }

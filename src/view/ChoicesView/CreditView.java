@@ -97,7 +97,7 @@ public class CreditView implements View {
 
             CreditType type = showCreditTypes();
 
-            boolean result = this.creditService.createCredit(
+            Credit result = this.creditService.createCredit(
                     amount,
                     duree,
                     Taux,
@@ -105,37 +105,46 @@ public class CreditView implements View {
                     type,
                     account
             );
-            if(result){
-                System.out.println("The credit has been created successfully !!");
-                List<Credit> ListCredits = this.creditService.getCreditsByUserID(account.getClient().getId());
-                System.out.println(colorizeCell("List Of All Credits For "+ListCredits.get(0).getAccount().getClient().getLastName() +" "+ListCredits.get(0).getAccount().getClient().getFirstName() ,GREEN,1));
+            if(result != null){
+                System.out.println("1 . Confirm");
+                System.out.println("2 . Cancel");
+                System.out.print("-> ");
+                int Choice = scanner.nextInt();
+                if(Choice == 1){
+                    this.creditService.requestCredit(result);
+                    System.out.println("The credit has been created successfully !!");
+                    List<Credit> ListCredits = this.creditService.getCreditsByUserID(account.getClient().getId());
+                    System.out.println(colorizeCell("List Of All Credits For "+ListCredits.get(0).getAccount().getClient().getLastName() +" "+ListCredits.get(0).getAccount().getClient().getFirstName() ,GREEN,1));
 
-                int index = 1;
-                String format = "| %-5s | %-10s | %-10s | %-10s | %-10s | %-15s | %-15s |\n";
-                System.out.printf(format,
-                        colorizeCell("Key",YELLOW,5),
-                        colorizeCell("Amount",YELLOW,10),
-                        colorizeCell("Status",YELLOW,10),
-                        colorizeCell("Duree",YELLOW,10),
-                        colorizeCell("Type",YELLOW,10),
-                        colorizeCell("Each Month",YELLOW,15),
-                        colorizeCell("Created",YELLOW,15)
-                );
-                for (Credit creditEle : ListCredits){
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-
+                    int index = 1;
+                    String format = "| %-5s | %-10s | %-10s | %-10s | %-10s | %-15s | %-15s |\n";
                     System.out.printf(format,
-                            index,
-                            creditEle.getAmount(),
-                            creditEle.getStatus(),
-                            creditEle.getDuree() + " Mois",
-                            creditEle.getCreditType(),
-                            creditEle.getAmountEach() == null ? BigDecimal.ZERO : creditEle.getAmountEach(),
-                            creditEle.getCreatedAt().format(formatter)
+                            colorizeCell("Key",YELLOW,5),
+                            colorizeCell("Amount",YELLOW,10),
+                            colorizeCell("Status",YELLOW,10),
+                            colorizeCell("Duree",YELLOW,10),
+                            colorizeCell("Type",YELLOW,10),
+                            colorizeCell("Each Month",YELLOW,15),
+                            colorizeCell("Created",YELLOW,15)
                     );
-                    index++;
+                    for (Credit creditEle : ListCredits){
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+                        System.out.printf(format,
+                                index,
+                                creditEle.getAmount(),
+                                creditEle.getStatus(),
+                                creditEle.getDuree() + " Mois",
+                                creditEle.getCreditType(),
+                                creditEle.getAmountEach() == null ? BigDecimal.ZERO : creditEle.getAmountEach(),
+                                creditEle.getCreatedAt().format(formatter)
+                        );
+                        index++;
+                    }
+                    return true;
                 }
-                return result;
+            }else{
+                System.out.println("Failed to create the credit !!");
             }
         }else{
             System.out.println("The user doesnt have credit account create One before request credit !!");
