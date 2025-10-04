@@ -6,6 +6,7 @@ import modules.Transaction;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
 
 public interface TransactionRepository {
@@ -13,6 +14,6 @@ public interface TransactionRepository {
     UUID deposit(BigDecimal amount, Account transferIN, Account transferOUT) throws SQLException;
     UUID withdraw(BigDecimal amount,Account transferIN,Account transferOUT) throws SQLException;
     UUID transfer(BigDecimal amount,Account transferIN,Account transferOUT,boolean isOut) throws SQLException;
-    boolean showHistory(BigDecimal amount);
-
+    List<String> showHistory();
+    List<Transaction> getAll();
 }

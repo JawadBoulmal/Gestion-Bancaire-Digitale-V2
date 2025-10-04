@@ -32,21 +32,20 @@ public class AuthView {
     }
 
     public void showLoginMenu() throws SQLException {
-        services.AuthService.setIsOnline(this.AuthService.Login("jawadboulmal@gmail.com","Skayologie"));
+//        services.AuthService.setIsOnline(this.AuthService.Login("jawadboulmal@gmail.com","Skayologie"));
+
+        System.out.println("===================================");
+        System.out.println("         🔐 Login Menu              ");
+        System.out.println("===================================");
+
+        System.out.print("📧 Email    : ");
+        String email = scanner.next();
+
+        System.out.print("🔑 Password : ");
+        String password = scanner.next();
+
+        services.AuthService.setIsOnline(this.AuthService.Login(email,password));
         AcceuilView = new Acceuil();
-
-//        System.out.println("===================================");
-//        System.out.println("         🔐 Login Menu              ");
-//        System.out.println("===================================");
-//
-//        System.out.print("📧 Email    : ");
-//        String email = scanner.next();
-//
-//        System.out.print("🔑 Password : ");
-//        String password = scanner.next();
-
-//        services.AuthService.setIsOnline(this.AuthService.Login(email,password));
-//        AcceuilView = new Acceuil();
     }
 
 

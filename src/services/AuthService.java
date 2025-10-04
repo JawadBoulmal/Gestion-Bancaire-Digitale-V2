@@ -50,7 +50,12 @@ public class AuthService {
 
     public boolean Login(String email , String password) throws SQLException {
         User UserID = userRepository.login(email,password);
+
         if(UserID != null){
+            if(UserID.getRole() == Roles.CLIENT){
+                System.err.println("\nYou don't have access to the system .\n");
+                return false;
+            }
             setIsOnline(true);
             return true;
         }
@@ -75,5 +80,8 @@ public class AuthService {
             return false;
         }
         return true;
+    }
+    public void logout(){
+         setIsOnline(false);
     }
 }

@@ -2,29 +2,33 @@ package repositories;
 
 import enums.TransactionsType;
 import enums.VirementStatus;
-import interfaces.BankFeeRepository;
 import interfaces.TransactionRepository;
 import modules.Account;
 import modules.BankFee;
 import modules.Transaction;
-import modules.User;
 import services.BankFeeService;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class TransactionRepositoryImp implements TransactionRepository {
     private final Connection connection;
     private BankFeeRepositoryImp bankFeeRepo;
     private BankFeeService bankFeeService;
+    private AccountRepositoryImp AccountRepo;
 
 
     public TransactionRepositoryImp(Connection connection) {
         this.connection = connection;
+        this.AccountRepo = new AccountRepositoryImp(connection);
     }
 
     @Override
@@ -197,7 +201,93 @@ public class TransactionRepositoryImp implements TransactionRepository {
     }
 
     @Override
-    public boolean showHistory(BigDecimal amount) {
-        return false;
+    public List<String> showHistory() {
+        List<Transaction> transactions = getAll();
+        List<String> history = new ArrayList<>();
+
+        for (Transaction t : transactions) {
+            history.add(generateTransactionHistory(t));
+        }
+
+        return history;
+    }
+    public String generateTransactionHistory(Transaction t) {
+        String senderName = (t.getTransferOUT() != null && t.getTransferOUT().getClient() != null)
+                ? t.getTransferOUT().getClient().getFirstName() + " " + t.getTransferOUT().getClient().getLastName()
+                : "Unknown Sender";
+
+        String receiverName = (t.getTransferIN() != null && t.getTransferIN().getClient() != null)
+                ? t.getTransferIN().getClient().getFirstName() + " " + t.getTransferIN().getClient().getLastName()
+                : "Unknown Receiver";
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        String date = t.getCreatedAt() != null ? t.getCreatedAt().format(formatter) : "Unknown Date";
+
+        switch (t.getType()) {
+            case TRANSFERIN:
+                return date + " | TRANSFER IN  | " + receiverName + " received " + t.getAmount() + " DH "
+                        + "from account type " + (t.getTransferOUT() != null ? t.getTransferOUT().getType() : "Unknown")
+                        + " to account type " + (t.getTransferIN() != null ? t.getTransferIN().getType() : "Unknown");
+
+            case TRANSFEROUT:
+                return date + " | TRANSFER OUT | " + senderName + " sent " + t.getAmount() + " DH to " + receiverName;
+
+            case DEPOSIT:
+                return date + " | DEPOSIT      | " + senderName + " deposited " + t.getAmount() + " DH into his account";
+
+            case WITHDRAW:
+                return date + " | WITHDRAW     | " + senderName + " withdrew " + t.getAmount() + " DH from his account";
+
+            default:
+                return date + " | TRANSACTION  | " + senderName + " and " + receiverName + " | Amount: " + t.getAmount() + " DH";
+        }
+    }
+
+    public List<Transaction> getAll() {
+        List<Transaction> transactions = new ArrayList<>();
+        String sql = """
+            SELECT t.*,
+                   ReceiverAcc.id   AS ReceiverID,
+                   SenderAcc.id     AS SenderID,
+                   CONCAT(cReceiver.firstName, ' ', cReceiver.lastName) AS receiver_name,
+                   cReceiver.email  AS receiver_email,
+                   CONCAT(cSender.firstName, ' ', cSender.lastName)     AS sender_name,
+                   cSender.email    AS sender_email
+            FROM transactions t
+                     LEFT JOIN accounts ReceiverAcc ON ReceiverAcc.id = t.transferIN
+                     LEFT JOIN accounts SenderAcc   ON SenderAcc.id = t.transferOUT
+                     LEFT JOIN client cReceiver     ON cReceiver.id = ReceiverAcc.UserID
+                     LEFT JOIN client cSender       ON cSender.id   = SenderAcc.UserID
+            ORDER BY t.created_at DESC
+            """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Account transferINAcc = this.AccountRepo.getAccountById(
+                        rs.getString("ReceiverID") != null ? UUID.fromString(rs.getString("ReceiverID")) : null
+                );
+                Account transferOUTAcc = this.AccountRepo.getAccountById(
+                        rs.getString("SenderID") != null ? UUID.fromString(rs.getString("SenderID")) : null
+                );
+
+                Transaction t = new Transaction(
+                        rs.getObject("id", java.util.UUID.class),
+                        rs.getBigDecimal("amount"),
+                        transferINAcc,
+                        transferOUTAcc,
+                        TransactionsType.valueOf(rs.getString("type")),
+                        VirementStatus.valueOf(rs.getString("status")),
+                        null,
+                        rs.getObject("created_at", LocalDateTime.class),
+                        rs.getObject("updated_at", LocalDateTime.class)
+                );
+                transactions.add(t);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return transactions;
     }
 }
